@@ -1,7 +1,7 @@
 #' Authors: Thomas Bryce Kelly
 #' Contact: tbk14 (at) fsu.edu or tom (at) tkelly.org
 
-source('R/MCMC Functions V2.R')
+source('R/MCMC Functions.R')
 col = pals::alphabet(8)
 
 
@@ -55,10 +55,10 @@ state = init.state(); state = get.state(model)
   # and then subsampled every K-th solution in order to maintain solution
   # independence. 
   a = Sys.time()
-  N = 2e6 - 1
+  N = 2e6
   
   for (i in 1:N) {
-    model.temp = get.new.model(model, scale = 0.3) ## New model parameter set
+    model.temp = get.new.model(model, scale = 0.2) ## New model parameter set
     state.temp = get.state(model.temp) ## New sets of growths and scores
     
     if (accept.sol(state$score$Total, state.temp$score$Total)) {
@@ -401,12 +401,12 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   add.violin(5, rnorm(10*nrow(model$params$hist), model$params$Param1[31], model$params$Param2[31]), col[5], 'grey', border = T, scale = 0.3)
   add.violin(6, rnorm(10*nrow(model$params$hist), model$params$Param1[38], model$params$Param2[38]), col[6], 'grey', border = T, scale = 0.3)
   
-  add.violin(1, model$params$hist$KNO3_SYN[-1], col[1], 'grey', scale = 0.3)
-  add.violin(2, model$params$hist$KNO3_PRO[-1], col[2], 'grey', scale = 0.3)
-  add.violin(3, model$params$hist$KNO3_OTHER[-1], col[3], 'grey', scale = 0.3)
-  add.violin(4, model$params$hist$KNO3_DIA[-1], col[4], 'grey', scale = 0.3)
-  add.violin(5, model$params$hist$KNO3_DINO[-1], col[5], 'grey', scale = 0.3)
-  add.violin(6, model$params$hist$KNO3_PRYM[-1], col[6], 'grey', scale = 0.3)
+  add.violin(1, model$params$hist$KNH4_SYN[-1], col[1], 'grey', scale = 0.3)
+  add.violin(2, model$params$hist$KNH4_PRO[-1], col[2], 'grey', scale = 0.3)
+  add.violin(3, model$params$hist$KNH4_OTHER[-1], col[3], 'grey', scale = 0.3)
+  add.violin(4, model$params$hist$KNH4_DIA[-1], col[4], 'grey', scale = 0.3)
+  add.violin(5, model$params$hist$KNH4_DINO[-1], col[5], 'grey', scale = 0.3)
+  add.violin(6, model$params$hist$KNH4_PRYM[-1], col[6], 'grey', scale = 0.3)
   
   par(plt = c(0.51, 0.8, 0.2, 0.9), new = T)
   plot(NULL, NULL, ylim = c(6.5,0.5), xlim = c(-2.5,1), xaxt = 'n', yaxt = 'n', ylab = '', xlab = 'KNH4 (uM)')
@@ -419,12 +419,12 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   add.violin(5, rnorm(10*nrow(model$params$hist), model$params$Param1[30], model$params$Param2[30]), col[5], 'grey', border = T, scale = 0.3)
   add.violin(6, rnorm(10*nrow(model$params$hist), model$params$Param1[37], model$params$Param2[37]), col[6], 'grey', border = T, scale = 0.3)
   
-  add.violin(1, model$params$hist$KNH4_SYN[-1], col[1], 'grey', scale = 0.3)
-  add.violin(2, model$params$hist$KNH4_PRO[-1], col[2], 'grey', scale = 0.3)
-  add.violin(3, model$params$hist$KNH4_OTHER[-1], col[3], 'grey', scale = 0.3)
-  add.violin(4, model$params$hist$KNH4_DIA[-1], col[4], 'grey', scale = 0.3)
-  add.violin(5, model$params$hist$KNH4_DINO[-1], col[5], 'grey', scale = 0.3)
-  add.violin(6, model$params$hist$KNH4_PRYM[-1], col[6], 'grey', scale = 0.3)
+  add.violin(1, model$params$hist$KNO3_SYN[-1], col[1], 'grey', scale = 0.3)
+  add.violin(2, model$params$hist$KNO3_PRO[-1], col[2], 'grey', scale = 0.3)
+  add.violin(3, model$params$hist$KNO3_OTHER[-1], col[3], 'grey', scale = 0.3)
+  add.violin(4, model$params$hist$KNO3_DIA[-1], col[4], 'grey', scale = 0.3)
+  add.violin(5, model$params$hist$KNO3_DINO[-1], col[5], 'grey', scale = 0.3)
+  add.violin(6, model$params$hist$KNO3_PRYM[-1], col[6], 'grey', scale = 0.3)
   
   add.violin(1, rnorm(nrow(model$params$hist), model$params$Param1[2], model$params$Param2[2]), col[1], 'grey', border = T, scale = 0.3)
 }
