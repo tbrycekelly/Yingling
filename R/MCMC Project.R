@@ -80,7 +80,7 @@ state = init.state(); state = get.state(model)
   # Remove first half of solutions and sample every K solution.
   l = length(which(!is.na(state$score$HIST)))
   BI = floor(l/2)
-  K = 20
+  K = 50
   model$params$hist = model$params$hist[c(1,seq(BI, l, by = K)),] ## Save first one since it == NEMURO
   state$score$HIST = state$score$HIST[c(1,seq(BI, l, by = K))] ## TODO See if initial parameterizations for DINO and PRYM = NEMURO-GOM
   state = get.state(model, entry = 0) ## Calculates the average uptake/growth across all solutions
@@ -175,6 +175,7 @@ plot(state$score$HIST[-1], type = 'l')
 
 {
   #png('_figures/Nutrient Limitation and f-ratio Plot V2.png', width = 1200, height = 800)
+  pdf('_figures/Nutrient Limitation and f-ratio Plot V2.pdf', width = 4.5, height = 7)
   par(mfrow = c(1,1), plt = c(0.2, 0.9, 0.65, 0.9))
   
   ## Nutrient Availability
@@ -197,7 +198,7 @@ plot(state$score$HIST[-1], type = 'l')
   add.boxplot.box(4.45, state$growth$DIA$NL[-l]+state$growth$DIA$AL[-l], width = w, col = col2)
   add.boxplot.box(5.45, state$growth$DINO$NL[-l]+state$growth$DINO$AL[-l], width = w, col = col2)
   add.boxplot.box(6.45, state$growth$PRYM$NL[-l]+state$growth$PRYM$AL[-l], width = w, col = col2)
-  legend('topright', legend = c('Shallow (<50 m)', 'Deep (>50 m)'), col = c(col1, col2), pch = 15, cex = 0.9)
+  #legend('topright', legend = c('Shallow (<50 m)', 'Deep (>50 m)'), col = c(col1, col2), pch = 15, cex = 0.9)
  
   ## f-ratio
   par(new = T, plt = c(0.2, 0.9, 0.4, 0.64))
@@ -237,10 +238,9 @@ plot(state$score$HIST[-1], type = 'l')
   add.boxplot.box(4.45, state$growth$DIA$LL[-l], width = w, col = col2)
   add.boxplot.box(5.45, state$growth$DINO$LL[-l], width = w, col = col2)
   add.boxplot.box(6.45, state$growth$PRYM$LL[-l], width = w, col = col2)
-  #dev.off()
+  dev.off()
 }
 
-dev.off()
 
 { ## Compare NEMURO answer to ours vs observations
   nemuro.state = get.state(model, 1)
@@ -286,7 +286,7 @@ pdf('_figures/NPP and uptake.pdf', width = 7, height = 4)
        cex = make.cex(model$obs.spreadsheet$NO3.Uptake / model$obs.spreadsheet$NO3.Uptake.Sigma, max = 2, min = 0.3),
        main = paste('NO3 Uptake ~~ n =', length(which(!is.na(model$obs.spreadsheet$NO3.Uptake)))))
   abline(a=0, b=1, lty = 2)
-  grid()
+  grid(); box()
   points(model$obs.spreadsheet$NO3.Uptake, nemuro.state$growth$TOTAL$GPP.NO3, pch = 16, col = '#ff000080',
          cex = make.cex(model$obs.spreadsheet$NO3.Uptake / model$obs.spreadsheet$NO3.Uptake.Sigma, max = 2, min = 0.3))
   
@@ -301,7 +301,7 @@ pdf('_figures/NPP and uptake.pdf', width = 7, height = 4)
        pch = 16, col = '#00000090', xlim = c(-0.05, 0.15), ylim = c(-0.05,0.15),
        cex = make.cex(model$obs.spreadsheet$NPP.N / model$obs.spreadsheet$NPP.N.Sigma, max = 2, min = 0.4),
        main = paste('NPP ~~ n =', length(which(!is.na(model$obs.spreadsheet$NPP.N)))))
-  grid()
+  grid(); box()
   points(model$obs.spreadsheet$NPP.N, nemuro.state$growth$TOTAL$NPP, pch = 16, col = '#ff000080',
          cex = make.cex(model$obs.spreadsheet$NPP.N / model$obs.spreadsheet$NPP.N.Sigma, max = 2, min = 0.4))
   abline(a=0, b=1, lty = 2)
@@ -309,6 +309,7 @@ pdf('_figures/NPP and uptake.pdf', width = 7, height = 4)
   #mtext(side = 3, line = -1, adj = 0.05, paste('Cost:', round(-0.5*sum(state$score$NPP, na.rm = T))))
   #mtext(side = 3, line = -1, adj = 0.25, paste('Cost:', round(-0.5*sum(nemuro.state$score$NPP, na.rm = T))), col = 'red')
 }
+dev.off()
 
 pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
 { ## Compare model-obs NPP (tuned and untuned)
@@ -317,7 +318,7 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   ## PRO
   plot(model$obs.spreadsheet$PRO.Growth.Rate, state$growth$PRO$Rate, ylab = 'Model mu (d-1)', xlab = 'Observed mu (d-1)',
        main = paste('PRO ~~ n =', length(which(!is.na(model$obs.spreadsheet$PRO.Growth)))),
-       pch = 16, col = '#00000070', xlim = c(-0.3, 2), ylim = c(-0.3,2))
+       pch = 16, col = '#00000070', xlim = c(-1.0, 2), ylim = c(-1.0,2))
   grid()
   points(model$obs.spreadsheet$PRO.Growth.Rate, nemuro.state$growth$PRO$Rate, pch = 16, col = '#ff000070')
   abline(a=0, b=1, lty = 2)
@@ -327,7 +328,7 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   ## SYN
   plot(model$obs.spreadsheet$SYN.Growth.Rate, state$growth$SYN$Rate, ylab = 'Model mu (d-1)', xlab = 'Observed mu (d-1)',
        main = paste('SYN ~~ n =', length(which(!is.na(model$obs.spreadsheet$SYN.Growth)))),
-       pch = 16, col = '#00000070', xlim = c(-0.3, 2), ylim = c(-0.3,2))
+       pch = 16, col = '#00000070', xlim = c(-1.0, 2), ylim = c(-1.0,2))
   grid()
   points(model$obs.spreadsheet$SYN.Growth.Rate, nemuro.state$growth$SYN$Rate, pch = 16, col = '#ff000070')
   abline(a=0, b=1, lty = 2)
@@ -337,7 +338,7 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   ## OTHER
   plot(model$obs.spreadsheet$OTHER.Growth.Rate, state$growth$OTHER$Rate, ylab = 'Model mu (d-1)', xlab = 'Observed mu (d-1)',
        main = paste('OTHER ~~ n =', length(which(!is.na(model$obs.spreadsheet$OTHER.Growth)))),
-       pch = 16, col = '#00000070', xlim = c(-0.3, 2), ylim = c(-0.3,2))
+       pch = 16, col = '#00000070', xlim = c(-1.0, 2), ylim = c(-1.0,2))
   grid()
   points(model$obs.spreadsheet$OTHER.Growth.Rate, nemuro.state$growth$OTHER$Rate, pch = 16, col = '#ff000070')
   abline(a=0, b=1, lty = 2)
@@ -347,7 +348,7 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   ## DIA
   plot(model$obs.spreadsheet$DIA.Growth.Rate, state$growth$DIA$Rate, ylab = 'Model mu (d-1)', xlab = 'Observed mu (d-1)',
        main = paste('DIA ~~ n =', length(which(!is.na(model$obs.spreadsheet$DIA.Growth)))),
-       pch = 16, col = '#00000070', xlim = c(-0.3, 2), ylim = c(-0.3,2))
+       pch = 16, col = '#00000070', xlim = c(-1.0, 2), ylim = c(-1.0,2))
   grid()
   points(model$obs.spreadsheet$DIA.Growth.Rate, nemuro.state$growth$DIA$Rate, pch = 16, col = '#ff000070')
   abline(a=0, b=1, lty = 2)
@@ -357,7 +358,7 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   ## DINO
   plot(model$obs.spreadsheet$DINO.Growth.Rate, state$growth$DINO$Rate, ylab = 'Model mu (d-1)', xlab = 'Observed mu (d-1)',
        main = paste('DINO ~~ n =', length(which(!is.na(model$obs.spreadsheet$DINO.Growth)))),
-       pch = 16, col = '#00000070', xlim = c(-0.3, 2), ylim = c(-0.3,2))
+       pch = 16, col = '#00000070', xlim = c(-1.0, 2), ylim = c(-1.0,2))
   grid()
   points(model$obs.spreadsheet$DINO.Growth.Rate, nemuro.state$growth$DINO$Rate, pch = 16, col = '#ff000070')
   abline(a=0, b=1, lty = 2)
@@ -367,17 +368,17 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   ## PRYM
   plot(model$obs.spreadsheet$PRYM.Growth.Rate, state$growth$PRYM$Rate, ylab = 'Model mu (d-1)', xlab = 'Observed mu (d-1)',
        main = paste('PRYM ~~ n =', length(which(!is.na(model$obs.spreadsheet$PRYM.Growth)))),
-       pch = 16, col = '#00000070', xlim = c(-0.3, 2), ylim = c(-0.3,2))
+       pch = 16, col = '#00000070', xlim = c(-1.0, 2), ylim = c(-1.0,2))
   grid()
   points(model$obs.spreadsheet$PRYM.Growth.Rate, nemuro.state$growth$PRYM$Rate, pch = 16, col = '#ff000070')
   abline(a=0, b=1, lty = 2)
   #mtext(side = 3, line = -1.5, adj = 0.05, paste('Cost:', round(-0.5*sum(state$score$Mu.PRYM, na.rm = T), digits = 1)), cex = 0.7)
   #mtext(side = 3, line = -1.5, adj = 0.5, paste('Cost:', round(-0.5*sum(nemuro.state$score$Mu.PRYM, na.rm = T), digits = 1)), col = 'red', cex = 0.7)
 }
-
+dev.off()
 
 {  ## Big correlation Figure
-  pdf(file = '_figures/Model Parameter Correlations V2.pdf')
+  pdf(file = '_figures/Model Parameter Correlations.pdf')
   plot.matrix(c(2:6)) ## SYN
   plot.matrix(c(9:13)) ## PRO
   plot.matrix(c(16:20)) ## OTHER
@@ -387,10 +388,10 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   dev.off()
 }
 
-
+pdf('_figures/Violin Plot of Priors.pdf')
 {
   par(plt = c(0.2, 0.5, 0.2, 0.9))
-  plot(NULL, NULL, ylim = c(6.5,0.5), xlim = c(-2.5,1), xaxt = 'n', xlab = 'KNO3 (uM)', ylab = '', yaxt = 'n')
+  plot(NULL, NULL, ylim = c(6.5,0.5), xlim = c(-2.5,1), xaxt = 'n', xlab = 'KNH4 (uM)', ylab = '', yaxt = 'n')
   axis(2, at = c(1:6), labels = c('SYN', 'PRO', 'OTHER', 'DIA', 'DINO', 'PRYM'), las = 1)
   add.log.axis(side = 1, grid.major = T)
   
@@ -409,7 +410,7 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   add.violin(6, model$params$hist$KNH4_PRYM[-1], col[6], 'grey', scale = 0.3)
   
   par(plt = c(0.51, 0.8, 0.2, 0.9), new = T)
-  plot(NULL, NULL, ylim = c(6.5,0.5), xlim = c(-2.5,1), xaxt = 'n', yaxt = 'n', ylab = '', xlab = 'KNH4 (uM)')
+  plot(NULL, NULL, ylim = c(6.5,0.5), xlim = c(-2.5,1), xaxt = 'n', yaxt = 'n', ylab = '', xlab = 'KNO3 (uM)')
   add.log.axis(side = 1, grid.major = T)
   
   add.violin(1, rnorm(10*nrow(model$params$hist), model$params$Param1[2], model$params$Param2[2]), col[1], 'grey', border = T, scale = 0.3)
@@ -428,3 +429,10 @@ pdf('_figures/Growth Rates.pdf', width = 8, height = 5.75)
   
   add.violin(1, rnorm(nrow(model$params$hist), model$params$Param1[2], model$params$Param2[2]), col[1], 'grey', border = T, scale = 0.3)
 }
+dev.off()
+
+
+
+
+#### Scores
+lapply(state$score, function(x) {sum(x, na.rm = T)})

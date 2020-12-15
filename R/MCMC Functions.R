@@ -195,17 +195,17 @@ calc.scores = function(model, state) {
   rate = state$growth$Rate
   epsilon = 1e-5
   
-  state$score$NO3 = (abs(total$GPP.NO3 - model$obs.spreadsheet$NO3.Uptake) / (model$obs.spreadsheet$NO3.Uptake.Sigma + epsilon))^2
-  state$score$NH4 = (abs(total$GPP.NH4 - model$obs.spreadsheet$NH4.Uptake) / (model$obs.spreadsheet$NH4.Uptake.Sigma + epsilon))^2
-  state$score$NPP = (abs(total$NPP - model$obs.spreadsheet$NPP.N) / (model$obs.spreadsheet$NPP.N.Sigma + epsilon))^2
+  state$score$NO3 = -0.5 * (abs(total$GPP.NO3 - model$obs.spreadsheet$NO3.Uptake) / (model$obs.spreadsheet$NO3.Uptake.Sigma + epsilon))^2 * -log(model$obs.spreadsheet$NO3.Uptake.Sigma * sqrt(2 * 3.14159))
+  state$score$NH4 = 0 #(abs(total$GPP.NH4 - model$obs.spreadsheet$NH4.Uptake) / (model$obs.spreadsheet$NH4.Uptake.Sigma + epsilon))^2 * sum(-log(model$obs.spreadsheet$NH4.Uptake.Sigma * sqrt(2 * 3.14159)))
+  state$score$NPP = -0.5 * (abs(total$NPP - model$obs.spreadsheet$NPP.N) / (model$obs.spreadsheet$NPP.N.Sigma + epsilon))^2 * -log(model$obs.spreadsheet$NPP.N.Sigma * sqrt(2 * 3.14159))
   
   ## Score for growth rates
-  state$score$Mu.PRO = (abs(rate$PRO - model$obs.spreadsheet$PRO.Growth.Rate) / (0.16))^2
-  state$score$Mu.SYN = (abs(rate$SYN - model$obs.spreadsheet$SYN.Growth.Rate) / (0.16))^2
-  state$score$Mu.OTHER = (abs(rate$OTHER - model$obs.spreadsheet$OTHER.Growth.Rate) / (0.16))^2
-  state$score$Mu.DIA = (abs(rate$DIA - model$obs.spreadsheet$DIA.Growth.Rate) / (0.16))^2
-  state$score$Mu.DINO = (abs(rate$DINO - model$obs.spreadsheet$DINO.Growth.Rate) / (0.16))^2
-  state$score$Mu.PRYM = (abs(rate$PRYM - model$obs.spreadsheet$PRYM.Growth.Rate) / (0.16))^2
+  state$score$Mu.PRO = -0.5 * (abs(rate$PRO - model$obs.spreadsheet$PRO.Growth.Rate) / (0.16))^2 * -log(0.16 * sqrt(2 * 3.14159))
+  state$score$Mu.SYN = -0.5 * (abs(rate$SYN - model$obs.spreadsheet$SYN.Growth.Rate) / (0.16))^2 * -log(0.16 * sqrt(2 * 3.14159))
+  state$score$Mu.OTHER = -0.5 * (abs(rate$OTHER - model$obs.spreadsheet$OTHER.Growth.Rate) / (0.16))^2 * -log(0.16 * sqrt(2 * 3.14159))
+  state$score$Mu.DIA = -0.5 * (abs(rate$DIA - model$obs.spreadsheet$DIA.Growth.Rate) / (0.16))^2 * -log(0.16 * sqrt(2 * 3.14159))
+  state$score$Mu.DINO = -0.5 * (abs(rate$DINO - model$obs.spreadsheet$DINO.Growth.Rate) / (0.16))^2 * -log(0.16 * sqrt(2 * 3.14159))
+  state$score$Mu.PRYM = -0.5 * (abs(rate$PRYM - model$obs.spreadsheet$PRYM.Growth.Rate) / (0.16))^2 * -log(0.16 * sqrt(2 * 3.14159))
   
   set = c(state$score$NO3, state$score$NH4, state$score$NPP, state$score$Mu.PRO, state$score$Mu.SYN, state$score$Mu.OTHER,
           state$score$Mu.DIA, state$score$Mu.DINO, state$score$Mu.PRYM)
@@ -232,7 +232,7 @@ calc.scores = function(model, state) {
   }
   index = max(which(!is.na(state$score$HIST)), 0) + 1
   state$score$prior = prior
-  state$score$Total = -0.5 * sum(set, na.rm = T) + sum(state$score$prior) ## Calculate log-likihood: P(x|theta) * P(theta)
+  state$score$Total = sum(set, na.rm = T) + sum(state$score$prior) ## Calculate log-likihood: P(x|theta) * P(theta)
   state$score$HIST[index] = state$score$Total
   
   state ## Return updated state
@@ -515,8 +515,13 @@ plot.matrix = function(k){
       if (i == j) {
         #hist(model$params$hist[,i], xlab = names[i], main = '', yaxt = 'n', ylab = '')
         d = density(model$params$hist[-1,i], adjust = 0.2)
-        plot(d$x, d$y, xlab = names[i], main = '', yaxt = 'n', ylab = '', frame.plot = F, type = 'l', col = 'darkgrey')
+        plot(d$x, d$y, xlab = names[i], main = '', yaxt = 'n', ylab = '', frame.plot = F, type = 'l', col = 'darkgrey', xaxt = 'n', xlim = range(pretty(model$params$hist[,i])))
         polygon(x = c(d$x, rev(d$x)), y = c(d$y, rep(0, length(d$y))), col = '#00005530')
+        if (which(i == k) == 4) {
+          axis(1)
+        } else {
+          add.log.axis(1)
+        }
         axis(1, at = c(-10,10))
         mtext(namei, line = -5, cex = 1.5, col = 'darkgrey')
         
@@ -528,7 +533,8 @@ plot.matrix = function(k){
         lines(d$x, d$y, col = 'blue', lwd = 2)
       }
       if (i < j) {
-        smoothScatter(model$params$hist[-1,i], model$params$hist[-1,j], xlab = '', ylab = '', main = '', nrpoints = 0, xaxt = 'n', yaxt = 'n')
+        smoothScatter(model$params$hist[-1,i], model$params$hist[-1,j], xlab = '', ylab = '', main = '', nrpoints = 0, xaxt = 'n', yaxt = 'n',
+                      xlim = range(pretty(model$params$hist[,i])), ylim =  range(pretty(model$params$hist[,j])))
         mtext(namei, side = 1, cex = 0.8, line = 0.3)
         mtext(namej, side = 2, cex = 0.8, line = 0.3)
         correlation = cor.test(model$params$hist[-1,i], model$params$hist[-1,j])
